@@ -225,6 +225,61 @@ needed unless they later hit **Regenerate API Key** (rotates instantly, old key 
 
 ---
 
+## 7. CRM integration (optional — TradePro / any service-business CRM)
+
+ReviewFlow can accept leads pushed from a CRM (e.g. TradePro) so that:
+
+- When a CRM **lead is won** or **project is completed**, the lead appears in
+  the ReviewFlow dashboard automatically (`source = 'crm'`).
+- The combined CRM dashboard shows a **review-status badge** per contact and a
+  **Send Review Request** button.
+- On project completion, ReviewFlow can **auto-send** the review email.
+
+This requires **three additional edge functions** that speak a server-to-server
+protocol (not the public widget protocol):
+
+| Function | Purpose |
+|---|---|
+| `integration-capture` | Upsert a CRM lead into `leads` (idempotent by `external_id`) |
+| `integration-send-review` | Look up a lead by email/`external_id` and send the review email |
+| `integration-lookup` | Return a contact's review state for the badge |
+
+### 7.1 Apply the migration
+
+```bash
+supabase link --project-ref <PROJECT_REF>
+supabase db push   # applies 20240101000002_crm_integration.sql
+```
+
+### 7.2 Deploy the functions
+
+```bash
+supabase functions deploy integration-capture
+supabase functions deploy integration-send-review
+supabase functions deploy integration-lookup
+```
+
+### 7.3 Set the integration secret
+
+Set an `INTEGRATION_SECRET` env var **on all three functions** (value must equal
+the CRM's `REVIEWFLOW_SECRET`):
+
+```bash
+supabase secrets set INTEGRATION_SECRET=shared-secret --project-ref <PROJECT_REF>
+```
+
+> If `INTEGRATION_SECRET` is left unset the functions accept calls anyway
+> (useful while wiring up), but you **must** set it for production.
+
+### 7.4 CRM-side wiring
+
+On the CRM's Cloudflare Worker set a **variable** `REVIEWFLOW_URL` to this
+project's URL (`https://<ref>.supabase.co`) and a **secret** `REVIEWFLOW_SECRET`
+to the same shared value. On the CRM's Cloudflare Pages project set the build
+variable `VITE_ENABLE_REVIEWS_INTEGRATION=true`. Then deploy both.
+
+---
+
 ## Appendix A — Full clean re-install (from scratch)
 
 ```bash
