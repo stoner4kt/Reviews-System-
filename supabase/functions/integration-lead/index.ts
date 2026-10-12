@@ -124,9 +124,10 @@ serve(async (req) => {
   );
 
   const url = new URL(req.url);
-  const parts = url.pathname.split("/").filter(Boolean); // e.g. ["integration-lead", "{id}", "send-review"]
-  const id = parts[1] && parts[1] !== "integration-lead" ? parts[1] : null;
-  const action = parts[2] || (req.method === "DELETE" ? "delete" : id ? "update" : "create");
+  // Path: /functions/v1/integration-lead[/{id}[/send-review]]
+  const rel = url.pathname.split("/").filter(Boolean).slice(3);
+  const id = rel[0] || null;
+  const action = rel[1] || (req.method === "DELETE" ? "delete" : id ? "update" : "create");
 
   if (action === "send-review") {
     if (!id) return json({ error: "lead id is required" }, 400);

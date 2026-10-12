@@ -44,8 +44,9 @@ serve(async (req) => {
   }
 
   const url = new URL(req.url);
-  const parts = url.pathname.split("/").filter(Boolean);
-  const action = parts[1] || "update"; // parts = ["integration-settings", action?]
+  // Path: /functions/v1/integration-settings[/rotate-key]
+  const rel = url.pathname.split("/").filter(Boolean).slice(3);
+  const action = rel[0] || "update";
 
   if (action === "rotate-key") {
     const { data, error } = await admin.rpc("rotate_widget_api_key");
