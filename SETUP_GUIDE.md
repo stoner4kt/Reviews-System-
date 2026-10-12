@@ -139,6 +139,15 @@ function → **Secrets**, or CLI)：
    |---|---|
    | Build command | `npm ci && npm run build:all` |
    | Build output directory | `dist` |
+   | Deploy command | _(leave this blank!)_ |
+
+   > **Important:** do **not** set a "Deploy command" (e.g. `npx wrangler deploy`).
+   > This project deploys as **static assets from `dist/`** — adding a wrangler
+   > deploy command makes the build try to deploy a *Worker* and can fail with a
+   > Cloudflare API **504** during the asset-upload session (the exact failure
+   > seen in past builds). Pages uploads `dist/` itself; no deploy command is
+   > needed.
+
 3. **Environment variables** (Pages → Settings → Environment variables)：
 
    | Name | Value |

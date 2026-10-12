@@ -1,0 +1,18 @@
+{
+  // ReviewFlow - Cloudflare Workers Builds deployment (Worker "reviews-system"
+  // serving the built SPA + widget as static assets).
+  //
+  // Committing this file keeps `wrangler deploy` fully non-interactive: without
+  // it, wrangler tries to auto-detect a framework inside the build container,
+  // prompts to modify project settings, and can fail with an asset-upload 504.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "reviews-system",
+  "compatibility_date": "2026-10-06",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "directory": "./dist"
+  }
+}
